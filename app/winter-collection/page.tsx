@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Eye,
   ShoppingBag,
@@ -53,11 +53,154 @@ type CartItem = {
 };
 
 export default function WinterCollection() {
+    const [searchTerm, setSearchTerm] = useState("");
+  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [wishlistLoaded, setWishlistLoaded] = useState(false);
+  const [showWishlistOnly, setShowWishlistOnly] = useState(false);
   const [selected, setSelected] = useState<Product | null>(null);
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("search") === "open") {
+    document.getElementById("product-search")?.focus();
+  }
+}, []);
+
+const filteredProducts = products.filter((product) =>
+  product.name.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
+  (!showWishlistOnly || wishlist.includes(product.id))
+);
   const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState<CartItem[]>([]);
+
+const [cartLoaded, setCartLoaded] = useState(false);
+
+// Restore saved cart when page opens
+useEffect(() => {
+  try {
+    const saved = localStorage.getItem("buttonz-cart-v1");
+
+    if (saved) {
+      const parsed: unknown = JSON.parse(saved);
+
+      if (Array.isArray(parsed)) {
+        const restored: CartItem[] = [];
+
+        for (const entry of parsed) {
+          if (!entry || typeof entry !== "object") continue;
+
+          const item = entry as {
+            id?: unknown;
+            size?: unknown;
+            quantity?: unknown;
+          };
+
+          const product = products.find(
+            (p) => p.id === item.id
+          );
+
+          const validSize =
+            typeof item.size === "string" &&
+            ["S", "M", "L", "XL", "XXL"].includes(item.size);
+
+          const validQuantity =
+            typeof item.quantity === "number" &&
+            Number.isInteger(item.quantity) &&
+            item.quantity >= 1 &&
+            item.quantity <= 99;
+
+          if (product && validSize && validQuantity) {
+            restored.push({
+              product,
+              size: item.size as string,
+              quantity: item.quantity as number,
+            });
+          }
+        }
+
+        setCart(restored);
+      }
+    }
+  } catch {
+    // Invalid saved data: start with an empty cart.
+  } finally {
+    setCartLoaded(true);
+  }
+}, []);
+
+// Save cart when products or quantities change
+useEffect(() => {
+  if (!cartLoaded) return;
+
+  const savedItems = cart.map((item) => ({
+    id: item.product.id,
+    size: item.size,
+    quantity: item.quantity,
+  }));
+
+  try {
+    localStorage.setItem(
+      "buttonz-cart-v1",
+      JSON.stringify(savedItems)
+    );
+  } catch {
+    // Shopping still works for this session
+    // if browser storage is unavailable.
+  }
+}, [cart, cartLoaded]);
+
   const [cartOpen, setCartOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved: unknown = JSON.parse(
+        localStorage.getItem("buttonz-wishlist-v1") || "[]"
+      );
+      if (Array.isArray(saved)) {
+        setWishlist(
+          saved.filter(
+            (id): id is number =>
+              typeof id === "number" && products.some((p) => p.id === id)
+          )
+        );
+      }
+    } catch {
+      // Keep an empty wishlist if saved data is unavailable.
+    } finally {
+      setWishlistLoaded(true);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("wishlist") === "open") {
+      setShowWishlistOnly(true);
+      document.getElementById("hoodies")?.scrollIntoView();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!wishlistLoaded) return;
+    try {
+      localStorage.setItem("buttonz-wishlist-v1", JSON.stringify(wishlist));
+    } catch {
+      // Wishlist still works for the current session.
+    }
+  }, [wishlist, wishlistLoaded]);
+
+  function toggleWishlist(productId: number) {
+    setWishlist((current) =>
+      current.includes(productId)
+        ? current.filter((id) => id !== productId)
+        : [...current, productId]
+    );
+  }
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("cart") === "open") {
+    setCartOpen(true);
+  }
+}, []);
 
   const sizes = ["S", "M", "L", "XL", "XXL"];
 
@@ -194,7 +337,16 @@ export default function WinterCollection() {
         </div>
 
         <div className="buttonz-cart-toolbar">
-          <span>{products.length} HOODIE STYLES</span>
+          <span>{filteredProducts.length} HOODIE STYLES</span>
+
+          <button
+            type="button"
+            className="buttonz-wishlist-filter"
+            onClick={() => setShowWishlistOnly((current) => !current)}
+            aria-pressed={showWishlistOnly}
+          >
+            {showWishlistOnly ? "SHOW ALL HOODIES" : `♡ SAVED (${wishlist.length})`}
+          </button>
 
           <button
             type="button"
@@ -205,9 +357,35 @@ export default function WinterCollection() {
             MY CART ({cartCount})
           </button>
         </div>
+<div style={{ marginBottom: "25px" }}>
+  <input
+    id="product-search"
+    type="search"
+    placeholder="Search hoodies..."
+    aria-label="Search hoodies"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    style={{
+      width: "100%",
+      padding: "16px 20px",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+      fontSize: "16px",
+      background: "#fff",
+      color: "#193653",
+    }}
+  />
+</div>
 
+{filteredProducts.length === 0 && (
+  <p style={{ marginBottom: "30px", color: "#666" }}>
+    {showWishlistOnly
+      ? "No saved hoodies match. Save a hoodie or show all products."
+      : "No hoodies found. Try another search."}
+  </p>
+)}
         <div className="hoodie-grid">
-          {products.map((product) => (
+        {filteredProducts.map((product) => (
             <article className="hoodie-card" key={product.id}>
               <div className="hoodie-image-wrap">
                 <span className="hoodie-badge">
@@ -248,6 +426,23 @@ export default function WinterCollection() {
               <div className="hoodie-info">
                 <h3>{product.name}</h3>
                 <p>Price on request</p>
+
+                <button
+                  type="button"
+                  className="buttonz-wishlist-toggle"
+                  onClick={() => toggleWishlist(product.id)}
+                  aria-pressed={wishlist.includes(product.id)}
+                  aria-label={
+                    wishlist.includes(product.id)
+                      ? `Remove ${product.name} from wishlist`
+                      : `Save ${product.name} to wishlist`
+                  }
+                >
+                  <span aria-hidden="true">
+                    {wishlist.includes(product.id) ? "♥" : "♡"}
+                  </span>
+                  {wishlist.includes(product.id) ? " Saved" : " Save to Wishlist"}
+                </button>
 
                 <button
                   type="button"

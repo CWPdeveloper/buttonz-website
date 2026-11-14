@@ -1,2 +1,116 @@
-export const metadata = { title: "Contact | BUTTONZ" };
-export default function Contact() { return <main><section className="inner-hero"><div className="eyebrow">LET'S TALK / BUTTONZ</div><h1>GOT A<br /><em>QUESTION?</em></h1><p>Ask us about hoodie sizes, colors, availability or your next order. We’d love to hear from you.</p></section><section className="contact-grid section-wrap"><div><div className="eyebrow dark-eye">CONTACT BUTTONZ</div><h2>LET'S MAKE<br />IT HAPPEN.</h2><p>Send us a message and our team will get back to you. Please add your preferred product, size and color when enquiring.</p><div className="contact-note">Contact details are being finalized. Add your business email and WhatsApp number before launching the site.</div></div><div className="contact-panel"><h3>ORDER ENQUIRY</h3><p>Copy these details and send them through your preferred contact channel once published.</p><div className="enquiry-row"><span>PRODUCT</span><span>Hoodie name / style</span></div><div className="enquiry-row"><span>SIZE</span><span>S / M / L / XL / XXL</span></div><div className="enquiry-row"><span>COLOR</span><span>Preferred color</span></div><div className="enquiry-row"><span>DELIVERY</span><span>City & country</span></div><p className="contact-disclaimer">Online checkout and payments are not enabled yet. No order is placed on this page.</p></div></section></main>; }
+
+import {
+  MessageCircle,
+  Phone,
+  ShoppingBag,
+  Truck,
+  ArrowUpRight,
+} from "lucide-react";
+
+export const metadata = {
+  title: "Contact Us | BUTTONZ",
+  description:
+    "Contact BUTTONZ for hoodie orders, sizes and delivery information.",
+};
+
+const whatsappNumber = "923188316095";
+
+const whatsappMessage = encodeURIComponent(
+  "Hello BUTTONZ! I would like to enquire about your hoodie collection."
+);
+
+const whatsappLink =
+  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
+export default function Contact() {
+  return (
+    <main>
+      <section className="inner-hero">
+        <div className="eyebrow">
+          LET'S TALK / BUTTONZ
+        </div>
+
+        <h1>
+          GOT A
+          <br />
+          <em>QUESTION?</em>
+        </h1>
+
+        <p>
+          Need help with hoodie sizes, colors,
+          availability or your next order?
+          We're here to help.
+        </p>
+      </section>
+
+      <section className="buttonz-contact-section">
+        <div className="buttonz-contact-intro">
+          <span>GET IN TOUCH</span>
+
+          <h2>
+            LET'S
+            <br />
+            CONNECT.
+          </h2>
+
+          <p>
+            Have a question about our winter collection?
+            Contact BUTTONZ directly on WhatsApp.
+          </p>
+
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="buttonz-whatsapp-button"
+          >
+            <MessageCircle size={21} />
+            CHAT ON WHATSAPP
+            <ArrowUpRight size={18} />
+          </a>
+        </div>
+
+        <div className="buttonz-contact-info">
+          <h3>CONTACT INFORMATION</h3>
+
+          <div className="buttonz-contact-row">
+            <Phone size={23} />
+
+            <div>
+              <strong>WhatsApp / Phone</strong>
+              <a href="tel:+923188316095">
+                +92 318 8316095
+              </a>
+            </div>
+          </div>
+
+          <div className="buttonz-contact-row">
+            <Truck size={23} />
+
+            <div>
+              <strong>Delivery</strong>
+              <p>Available All Over Pakistan</p>
+            </div>
+          </div>
+
+          <div className="buttonz-contact-row">
+            <ShoppingBag size={23} />
+
+            <div>
+              <strong>Order Enquiries</strong>
+              <p>
+                Hoodies, sizes, colors and availability
+              </p>
+            </div>
+          </div>
+
+          <div className="buttonz-contact-note">
+            Final product prices, availability and
+            delivery charges are confirmed before
+            your order is finalized.
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

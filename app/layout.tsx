@@ -49,23 +49,37 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   </Link>
 
   {/* Right Icons */}
-  <div className="buttonz-header-icons">
-    <Link href="/contact" aria-label="Account">
-      <UserRound size={22} strokeWidth={1.5} />
-    </Link>
+  
+<div className="buttonz-header-icons">
+  {/* Account */}
+  <Link href="/contact" aria-label="Contact BUTTONZ">
+    <UserRound size={22} strokeWidth={1.5} />
+  </Link>
 
-    <Link href="/#collection" aria-label="Search products">
-      <Search size={22} strokeWidth={1.5} />
-    </Link>
+  {/* Product Search */}
+<Link
+  href="/winter-collection?search=open"
+  aria-label="Search products"
+>
+  <Search size={22} strokeWidth={1.5} />
+</Link>
+  {/* Wishlist */}
+  <a
+    href="/winter-collection?wishlist=open"
+    aria-label="View saved hoodies"
+  >
+    <Bookmark size={22} strokeWidth={1.5} />
+  </a>
 
-    <Link href="/#collection" aria-label="Wishlist">
-      <Bookmark size={22} strokeWidth={1.5} />
-    </Link>
+  {/* Shopping Cart */}
+  <a
+    href="/winter-collection?cart=open"
+    aria-label="Open shopping cart"
+  >
+    <ShoppingBag size={22} strokeWidth={1.5} />
+  </a>
+</div>
 
-    <Link href="/contact" aria-label="Order enquiries">
-      <ShoppingBag size={22} strokeWidth={1.5} />
-    </Link>
-  </div>
 
 </header>
 
